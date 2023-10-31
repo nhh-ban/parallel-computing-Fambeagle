@@ -1,0 +1,18 @@
+# again i just want to execute the timer of the calcualtions 
+
+# Assignment 3:  
+tic("MTweedieTests Timing")
+df <-  
+  expand.grid( 
+    N = c(10,100,1000,5000, 10000), 
+    M = 1000, 
+    share_reject = NA) 
+
+for(i in 1:nrow(df)){ 
+  df$share_reject[i] <-  
+    MTweedieTests( 
+      N=df$N[i], 
+      M=df$M[i], 
+      sig=.05) 
+} 
+toc()
