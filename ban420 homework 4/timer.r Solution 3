@@ -1,0 +1,35 @@
+library(foreach)
+library(doParallel)
+library(tictoc)
+
+MTweedieTests <- function(N, M, sig) {
+  tic("MTweedieTests Timing")
+  
+  numCores <- 8  
+  cl <- makeCluster(numCores)
+  registerDoParallel(cl)
+  
+  clusterExport(cl, varlist = c("simTweedieTest"))
+  clusterEvalQ(cl, library(tweedie))
+
+  p.values <- foreach(i = 1:M, .combine = c) %dopar% {
+    simTweedieTest(N)
+  }
+  
+  share_reject <- mean(p.values < sig)
+  
+  stopCluster(cl)
+  
+  toc()
+  
+  return(share_reject)
+}
+
+
+
+# Run the MTweedieTests function
+result <- MTweedieTests(N = 1000, M = 1000, sig = 0.05)
+print(result)
+
+
+# when i used 8 cores on my computer i got a result of 1.36 seconds.  what an insane improvement.

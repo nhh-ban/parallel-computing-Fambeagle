@@ -1,0 +1,31 @@
+
+# since im not sourcing the data i can just manually run the code for 
+# the execution time to test how long it takes to run the code
+# this is beacuse i only enconter errors when i try and use github 
+
+numCores <- detectCores()
+cl <- makeCluster(numCores)
+registerDoParallel(cl)
+
+df <-  
+  expand.grid( 
+    N = c(10,100,1000,5000, 10000), 
+    M = 1000, 
+    type = c("tweedie", "normal"),
+    share_reject = NA
+  ) %>%
+  as_tibble()
+
+tic("Parallel Computation")
+results <- foreach(i = 1:nrow(df), .combine='rbind', .packages=c("tweedie", "ggplot2", "magrittr", "tidyverse")) %dopar% {
+  share_reject = MTests(df$N[i], df$M[i], df$type[i], .05)
+  c(N = df$N[i], M = df$M[i], type = df$type[i], share_reject = share_reject)
+}
+toc()
+
+
+df_results <- as.data.frame(results)
+
+
+stopCluster(cl)
+
